@@ -1,28 +1,34 @@
 import socket
 import os
 
+print("="*50)
+SERVER_IP = input("Masukkan IP Address Laptop Teman: ")
+print("="*50)
+
 def kirim_data(tipe, label_atau_namafile, data_bytes):
-    # Menyambungkan ke server
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        client.connect(('192.168.1.15', 5000))
+        client.connect((SERVER_IP, 5000))
         
-        # 1. Buat dan kirim Header (TIPE|NAMA_FILE/LABEL|UKURAN)
         ukuran = len(data_bytes)
         header = f"{tipe}|{label_atau_namafile}|{ukuran}"
         client.sendall(header.encode('utf-8'))
         
-        # 2. Tunggu Server Siap
         balasan = client.recv(1024).decode('utf-8')
         if balasan == "SIAP":
-            # 3. Kirim isi data
             client.sendall(data_bytes)
             print("[*] >> Pengiriman SUKSES! <<\n")
         else:
             print("[!] Server menolak pengiriman.\n")
             
     except ConnectionRefusedError:
-        print("[!] Gagal terhubung. Pastikan server.py sudah jalan (running).\n")
+        print("\n[!] Gagal terhubung.")
+        print("[!] Pastikan IP sudah benar dan server.py temanmu SUDAH JALAN.\n")
+    except TimeoutError:
+        print("\n[!] Timeout! Laptop temanmu tidak merespons.")
+        print("[!] Pastikan kalian di Wi-Fi yang sama, dan Firewall teman DIMATIKAN.\n")
+    except Exception as e:
+        print(f"\n[!] Terjadi error jaringan: {e}\n")
     finally:
         client.close()
 
@@ -35,7 +41,7 @@ def kirim_file(filepath):
     print(f"[*] Sedang membaca dan mengirim file {nama_file}...")
     
     with open(filepath, 'rb') as f:
-        data_bytes = f.read() # Membaca seluruh file menjadi bytes
+        data_bytes = f.read()
         
     kirim_data("FILE", nama_file, data_bytes)
 
@@ -46,16 +52,14 @@ if __name__ == "__main__":
         print("2. file")
         print("0. keluar")
         
-        # [PERBAIKAN 1]: Tambahkan input untuk memilih menu
         pilihan = input("Pilih menu: ")
         
         if pilihan == '1':
             teks = input("Ketik pesan: ")
-            # [PERBAIKAN 2]: Tambahkan label "Pesan Teks" agar argumennya pas (3 parameter)
             kirim_data("TEXT", "Pesan Teks", teks.encode('utf-8'))
             
         elif pilihan == '2':
-            nama_file = input("Nama file: ")
+            nama_file = input("Nama file lengkap (contoh: gambar.png): ")
             kirim_file(nama_file)
 
         elif pilihan == '0':

@@ -3,16 +3,9 @@ import socket
 def jalankan_receiver():
     BROADCAST_PORT = 5008
 
-    # Membuat socket UDP
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    
-    # Mengizinkan penggunaan port yang sama di 1 laptop (untuk testing)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    
-    # Mengizinkan socket ini menerima pesan broadcast
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    
-    # Bind ke semua antarmuka ('0.0.0.0') di port 5008
     sock.bind(('0.0.0.0', BROADCAST_PORT))
 
     print("="*50)
@@ -24,7 +17,6 @@ def jalankan_receiver():
     nama_simpan = ""
 
     while True:
-        # Terima data (ukuran buffer 4100)
         data, addr = sock.recvfrom(4100)
 
         try:
@@ -40,7 +32,6 @@ def jalankan_receiver():
 
             elif data.startswith(b"CHUNK|"):
                 if file_terbuka is not None:
-                    # Tulis isi file tanpa label 'CHUNK|'
                     file_terbuka.write(data[6:])
 
             elif data.startswith(b"FILE_END|"):
