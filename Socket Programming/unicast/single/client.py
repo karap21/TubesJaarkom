@@ -1,11 +1,17 @@
 import socket
 import os
 
+print("="*50)
+# [PERUBAHAN PENTING]: Minta user mengetik IP teman saat program baru jalan
+SERVER_IP = input("Masukkan IP Address Laptop Teman: ")
+print("="*50)
+
 def kirim_data(tipe, label_atau_namafile, data_bytes):
     # Menyambungkan ke server
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        client.connect(('127.0.0.1', 5000))
+        # Menggunakan IP yang diketik user tadi
+        client.connect((SERVER_IP, 5000))
         
         # 1. Buat dan kirim Header (TIPE|NAMA_FILE/LABEL|UKURAN)
         ukuran = len(data_bytes)
@@ -22,7 +28,11 @@ def kirim_data(tipe, label_atau_namafile, data_bytes):
             print("[!] Server menolak pengiriman.\n")
             
     except ConnectionRefusedError:
-        print("[!] Gagal terhubung. Pastikan server.py sudah jalan (running).\n")
+        print("\n[!] Gagal terhubung.")
+        print("[!] Pastikan IP sudah benar dan server.py temanmu SUDAH JALAN.\n")
+    except TimeoutError:
+        print("\n[!] Timeout! Laptop temanmu tidak merespons.")
+        print("[!] Pastikan kalian di Wi-Fi yang sama, dan Firewall teman DIMATIKAN.\n")
     finally:
         client.close()
 
@@ -41,21 +51,19 @@ def kirim_file(filepath):
 
 if __name__ == "__main__":
     while True:
-        print("\n=== MENU ===")
+        print("\n=== MENU PENGIRIMAN ===")
         print("1. teks")
         print("2. file")
         print("0. keluar")
         
-        # [PERBAIKAN 1]: Tambahkan input untuk memilih menu
         pilihan = input("Pilih menu: ")
         
         if pilihan == '1':
             teks = input("Ketik pesan: ")
-            # [PERBAIKAN 2]: Tambahkan label "Pesan Teks" agar argumennya pas (3 parameter)
             kirim_data("TEXT", "Pesan Teks", teks.encode('utf-8'))
             
         elif pilihan == '2':
-            nama_file = input("Nama file: ")
+            nama_file = input("Nama file lengkap (contoh: tugas.pdf): ")
             kirim_file(nama_file)
 
         elif pilihan == '0':

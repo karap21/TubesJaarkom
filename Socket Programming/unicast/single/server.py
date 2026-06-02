@@ -4,16 +4,19 @@ import os
 def jalankan_server():
     # Membuat socket TCP IPv4
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(('127.0.0.1', 5000))
+    
+    # [PERUBAHAN PENTING]: Diganti ke 0.0.0.0 agar bisa menerima dari laptop lain
+    server.bind(('0.0.0.0', 5000))
     server.listen(1) # SINGLE THREAD: Hanya melayani 1 antrian pada satu waktu
     
     print("="*50)
     print("[*] SERVER UNICAST (SINGLE THREAD) AKTIF")
-    print("[*] Menunggu kiriman data dari A...")
+    print("[*] Menunggu kiriman data dari Laptop Teman...")
     print("="*50)
 
     while True:
         conn, addr = server.accept()
+        print(f"\n[+] Terhubung dengan {addr}") # Menampilkan IP pengirim
         
         try:
             # 1. Terima Header KTP (Format: TIPE|NAMA_FILE|UKURAN)
@@ -38,7 +41,7 @@ def jalankan_server():
                     bytes_diterima += len(chunk)
                 
                 print(f"\n[+] PESAN TEKS DITERIMA:")
-                print(f"--- {nama_file} ---") # nama_file di sini adalah label jenis pesan
+                print(f"--- {nama_file} ---") 
                 print(data_teks.decode('utf-8'))
                 print("-" * 20)
                 

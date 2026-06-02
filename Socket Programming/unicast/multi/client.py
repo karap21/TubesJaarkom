@@ -5,7 +5,7 @@ def kirim_data(tipe, label_atau_namafile, data_bytes):
     # Menyambungkan ke server
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        client.connect(('127.0.0.1', 5000))
+        client.connect(('192.168.1.15', 5000))
         
         # 1. Buat dan kirim Header (TIPE|NAMA_FILE/LABEL|UKURAN)
         ukuran = len(data_bytes)
