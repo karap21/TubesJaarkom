@@ -4,9 +4,19 @@ import time
 
 MCAST_GRP = '224.1.1.1'
 MCAST_PORT = 5007
+LOCAL_IP = '127.0.0.1' # Kunci di localhost
 
+# Inisialisasi socket UDP
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+
+# Set TTL ke 1 (hanya untuk jaringan lokal)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 1)
+
+# PAKSA Loopback aktif (wajib agar bisa diterima di komputer sendiri)
+sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP, 1)
+
+# PAKSA agar data dikirim melalui jalur localhost, bukan adapter lain
+sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF, socket.inet_aton(LOCAL_IP))
 
 def kirim_teks(teks):
     payload = b"TEXT|" + teks.encode('utf-8')
@@ -40,6 +50,7 @@ def kirim_file(filepath):
     print("[*] Siaran file Multicast selesai!\n")
 
 if __name__ == "__main__":
+    print(f"[*] SENDER MULTICAST AKTIF (Jalur: {LOCAL_IP})")
     while True:
         print("\n=== MENU MULTICAST ===")
         print("1. teks")

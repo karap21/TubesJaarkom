@@ -4,26 +4,31 @@ import struct
 def jalankan_receiver():
     MCAST_GRP = '224.1.1.1'
     MCAST_PORT = 5007
+    LOCAL_IP = '127.0.0.1' # Kunci di localhost
 
+    # Inisialisasi socket UDP
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind(('0.0.0.0', MCAST_PORT))
 
-    mreq = struct.pack("4sl", socket.inet_aton(MCAST_GRP), socket.INADDR_ANY)
+    # Bind secara spesifik ke IP lokal dan Port
+    sock.bind((LOCAL_IP, MCAST_PORT))
+
+    # Mendaftar ke grup multicast khusus pada interface localhost
+    mreq = struct.pack("4s4s", socket.inet_aton(MCAST_GRP), socket.inet_aton(LOCAL_IP))
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
     print("="*50)
     print(f"[*] RECEIVER MULTICAST AKTIF")
-    print(f"[*] Bergabung di grup {MCAST_GRP}:{MCAST_PORT}")
+    print(f"[*] Mendengarkan di jalur {LOCAL_IP}:{MCAST_PORT}")
     print("="*50)
 
     file_terbuka = None
     nama_simpan = ""
 
     while True:
-        data, addr = sock.recvfrom(4100)
-
         try:
+            data, addr = sock.recvfrom(4100)
+
             if data.startswith(b"TEXT|"):
                 pesan = data[5:].decode('utf-8')
                 print(f"\n[+] PESAN DARI {addr}: \n{pesan}\n" + "-"*20)
